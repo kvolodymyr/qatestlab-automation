@@ -1,0 +1,216 @@
+package myprojects.automation.assignment3;
+
+import myprojects.automation.assignment3.utils.Properties;
+import org.junit.Assert;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.util.List;
+
+/**
+ * Contains main script actions that may be used in scripts.
+ */
+public class GeneralActions {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    private By byEmailId = By.id("email");
+    private By byPasswordId = By.id("passwd");
+    private By bySubmitBtnName = By.name("submitLogin");
+    private By byHeaderEmployeeBoxId = By.id("header_employee_box");
+    private By bySubAdminCatalogId = By.id("subtab-AdminCatalog"); // css selector
+    private By bySubTabAdminCategories = By.id("subtab-AdminCategories"); // css selector
+    private By byHeaderDescCategoryNewCategory = By.id("page-header-desc-category-new_category");
+    private By byName = By.id("name_1");
+    private By byCategoryFormSubmitBtn = By.id("category_form_submit_btn");
+    private By byTable = By.id("table-category");
+    private By byTableColumn = By.xpath("//td[3]");
+
+    public GeneralActions(WebDriver driver) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, 5);
+    }
+
+
+    public void home() {
+        // driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+        // driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        // sleep(1000);
+        // return driver;
+        // driver.get(Properties.getBaseAdminUrl());
+    }
+
+
+    /**
+     * Logs in to Admin Panel.
+     * @param login
+     * @param password
+     */
+    public void login(String login, String password) {
+        WebElement element;
+
+        driver.get(Properties.getBaseAdminUrl()); // driver.navigate().to(Properties.getBaseAdminUrl());
+
+        //element = (new WebDriverWait(driver, 3))
+        //    .until(ExpectedConditions.presenceOfElementLocated(byEmailId)); // By.id("email")
+
+        driver
+            .findElement(byEmailId) // .findElement(By.id("email"))
+            .sendKeys(login);
+
+        driver
+            .findElement(byPasswordId) // By.id("passwd")
+            .sendKeys(password);
+
+        driver                                                       // xpath //button[name="xxx"] $x
+            .findElement(bySubmitBtnName) // By.name("submitLogin") // cssSelector #login_form button[name='submitlogin'] $$
+            .click();       // div button :nth-child(3) $x("//span[text()=="ddd"]")
+/*
+        element = (new WebDriverWait(driver, 3))
+            .until(ExpectedConditions.presenceOfElementLocated(byHeaderEmployeeBoxId)); // By.id("header_employee_box")
+        // check the action was success
+        driver.findElement(byHeaderEmployeeBoxId); // By.id("header_employee_box")
+*/
+    }
+
+    private void openCategory() {
+        WebElement elMenuItem = waitForContentLoad(bySubAdminCatalogId);
+        // wait.until(ExpectedConditions.visibilityOfElementLocated(bySubAdminCatalogId));
+        // wait.until(ExpectedConditions.stalenessOf(driver.findElement(bySubAdminCatalogId))); // wait until element visible
+
+        // System.out.printf("Validate MenuItem: \"%s\"\n", txtMenuName);
+        Actions action = new Actions(driver);
+
+
+        //WebElement elMenuItem = driver.findElement(bySubAdminCatalogId); // By.id("subtab-AdminCatalog")
+        action.moveToElement(elMenuItem).perform();
+        // action.click(driver.findElement(By.id("subtab-AdminCategories")));
+        action.moveToElement(driver.findElement(bySubTabAdminCategories)).click().build().perform(); // By.id("subtab-AdminCategories")
+
+
+/*
+        action
+            .moveToElement(driver.findElement(bySubAdminCatalogId))
+            .moveToElement(driver.findElement(bySubTabAdminCategories))
+            .click()
+            .build()
+            .perform();
+*/
+
+    }
+
+    /**
+     * Adds new category in Admin Panel.
+     * @param categoryName
+     */
+    public void createCategory(String categoryName) {
+        WebElement element;
+
+        openCategory();
+
+        element = waitForContentLoad(byHeaderDescCategoryNewCategory);
+        // wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("page-header-desc-category-new_category")));
+        // element = (new WebDriverWait(driver, 3))
+        //     .until(ExpectedConditions.presenceOfElementLocated(By.id("page-header-desc-category-new_category")));
+        // element = driver.findElement(By.id("page-header-desc-category-new_category"));
+        element.click();
+
+        driver
+            .findElement(byName)
+            .sendKeys(categoryName);
+        //  active_on
+
+        driver
+            .findElement(byCategoryFormSubmitBtn)
+            .click();
+
+        waitForContentLoad(By.xpath("//*[@id='content']/div[contains(@class, 'bootstrap')]/div[contains(@class, 'alert') and contains(@class, 'alert-success')][contains(., 'Создано')]"));
+    }
+
+    /**
+     * Check category in Admin Panel.
+     * @param categoryName
+     */
+    public void checkCategory(String categoryName) {
+        // waitForContentLoad(byHeaderDescCategoryNewCategory);
+        // driver.findElement(By.xpath("//*[@id='content']/div[contains(@class, 'bootstrap')]/div[contains(@class, 'alert') and contains(@class, 'alert-success')][contains(., 'Создано')]"));
+
+        //Assert.assertEquals("× Создано", driver.findElement(By.cssSelector("#content > .bootstrap > .alert.alert-success")).getText());
+        driver.findElement(By.name("categoryFilter_name")).sendKeys(categoryName);
+        driver.findElement(By.id("submitFilterButtoncategory")).click();
+        waitForContentLoad(By.name("submitResetcategory"));
+        driver.findElement(By.xpath("//table[@id='table-category']//td[3][contains(.,'" + categoryName + "')]"));
+/*        css alert alert-success
+        Создано*/
+        // name categoryFilter_name
+        // id submitFilterButtoncategory
+        // name submitResetcategory
+        // WebElement element = driver.findElement(By.xpath("//table[@id='table-category']//td[3][contains(.,'" + categoryName + "')]"));
+/*
+        WebElement element = driver.findElement(By.xpath("//table[@id='table-category']//tr[contains(td[3],'" + categoryName + "')]"));
+        element.findElement(By.className("dropdown-toggle")).click();
+        element.findElement(By.className("delete")).click();
+        element = waitForContentLoad(By.cssSelector(".leadin form"));
+        element.findElement(By.id("deleteMode_delete")).click();
+        element.submit();
+        waitForContentLoad(By.xpath("/*/
+/*[@id='content']/div[contains(@class, 'bootstrap')]/div[contains(@class, 'alert') and contains(@class, 'alert-success')][contains(., 'Удаление завершено')]"));
+*/
+
+
+
+        // WebElement table = waitForContentLoad(byTable);
+/*
+        table = (new WebDriverWait(driver, 3))
+            .until(ExpectedConditions.presenceOfElementLocated(byTable));
+*/
+
+        /* List<WebElement> cells = table.findElements(byTableColumn);
+        System.out.println("Cells = " + cells.size());
+        boolean result = false;
+        for(WebElement cell : cells)
+        {
+            System.out.println("Text = " + cell.getText());
+            result = result || (categoryName.equals(cell.getText()));
+        }
+        Assert.assertTrue(result); */
+    }
+
+
+    /**
+     * Check category in Admin Panel.
+     * @param categoryName
+     */
+    public void deleteCategory(String categoryName) {
+        WebElement element = driver.findElement(By.xpath("//table[@id='table-category']//tr[contains(td[3],'" + categoryName + "')]"));
+        element.findElement(By.className("dropdown-toggle")).click();
+        element.findElement(By.className("delete")).click();
+        element = waitForContentLoad(By.cssSelector(".leadin form"));
+        element.findElement(By.id("deleteMode_delete")).click();
+        element.submit();
+        waitForContentLoad(By.xpath("//*[@id='content']/div[contains(@class, 'bootstrap')]/div[contains(@class, 'alert') and contains(@class, 'alert-success')][contains(., 'Удаление завершено')]"));
+    }
+
+    /**
+     * Waits until page loader disappears from the page
+     */
+    public WebElement waitForContentLoad(By locator) {
+        // implement generic method to wait until page content is loaded
+         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    public void createCategoryJS(String categoryName) {
+        // wait.until(ExpectedConditions.visibilityOfElementLocated(bySubAdminCatalogId));
+        waitForContentLoad(bySubAdminCatalogId);
+
+        JavascriptExecutor executor = (JavascriptExecutor)driver;
+        WebElement categoryiesLink = driver.findElement(bySubTabAdminCategories);
+        boolean expectedResult = (boolean)executor.executeScript(
+                "var scrollBefore = $(window).scrollTop();" +
+                        "window.scrollTo(scrollBefore, document.body.scrollHeight)" +
+                        "return $(window).scrollTop() > scrollBefore;");
+        executor.executeScript("arguments[0].click();", categoryiesLink); // <--- DOESN'T WORK
+    }
+}

@@ -47,7 +47,7 @@ public class CheckMainMenuTest extends BaseScript {
         System.out.printf("Validate MenuItem: \"%s\"\n", txtMenuName);
 
         WebElement elMenuItem = driver.findElement(By.id(txtMenuKey));
-        Assert.assertEquals(txtMenuName, elMenuItem.getText().trim());
+        Assert.assertEquals(txtMenuName, elMenuItem.getText());
         // WebElement link = elMenuItem.findElement(By.linkText(txtMenuName));
         // link.click();
         System.out.printf("Page: \"%s\" ---> \"%s\"\n", driver.getTitle(), elMenuItem.getText());
